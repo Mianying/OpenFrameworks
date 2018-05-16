@@ -4,7 +4,7 @@ Params param; //Definition of global variable
 
 void Params::setup(){
     eCenter = ofPoint(ofGetWidth()/2,ofGetHeight()/2);
-    eRad = 4000;
+    eRad = 5000;
     velRad = 2;
     lifeTime = 2;
     rotate = 0;
@@ -12,7 +12,7 @@ void Params::setup(){
     spinning = 800;
     friction = 0.01;
     
-    beat.loadSound("8.mp3");
+    beat.loadSound("9.mp3");
     beat.play();
     fftSmooth = new float[8912];
     for(int i=0; i < 8912; i++){
@@ -43,8 +43,19 @@ void Particle::setup() {
     time = 0;
     lifeTime = param.lifeTime;
     live = true;
- 
+    
+    #ifdef TARGET_OPENGLES
+    shader.load("shadersGL2/shader");
+#else
+    if(ofIsGLProgrammableRenderer()){
+        shader.load("shadersGL3/shader");
+    }else{
+        shader.load("shadersGL2/shader");
+    }
+#endif
 }
+
+
 
 void Particle::update( float dt ){
     if ( live ) {
@@ -59,16 +70,16 @@ void Particle::update( float dt ){
         //Rotate vel
         vel.rotate( 0, 0, param.rotate * dt );
         ofPoint acc; //Acceleration
-        ofPoint delta = pos - param.eCenter + (param.fftSmooth[i]*8000);
+        ofPoint delta = pos - param.eCenter + (param.fftSmooth[i]*9000);
         float len = delta.length();
         for(int i=0; i<param.bands;i++){
         if ( ofInRange( len, 0, param.eRad) ) {
             delta.normalize();
             //Attraction/repulsion force
-            acc += delta * param.force + (param.fftSmooth[i]*11250) ;
+            acc += delta * param.force + (param.fftSmooth[i]* 3050) ;
             //Spinning force
             acc.x += -delta.y * param.spinning + (param.fftSmooth[i]*2550);
-            acc.y += delta.x * param.spinning- (param.fftSmooth[i]*15000);
+            acc.y += delta.x * param.spinning - (param.fftSmooth[i]*8000);
             }
         
         }
@@ -92,16 +103,14 @@ void Particle::draw(){
         //size
         float size = ofMap(fabs(time - lifeTime/2), 0, lifeTime/2, 3, 1 );
         //color
-        for(int i=0; i<param.bands;i++){
-        ofColor color = ofColor::red;
-        float hue = ofMap( time, 0, lifeTime, 100, 155 );
-        
-        color.setHue( hue );
-        ofSetColor( color );
-        ofPushMatrix();
-        ofDrawCircle(pos, size);
-        ofPopMatrix();
-        }
+        //ofColor color = 255;
+        //float hue = ofMap( time, 0, lifeTime, 100, 155 );
+        //color.setHue( 0 );
+        //ofSetColor( color );
+        //ofSetColor(255);
+        shader.begin();
+        ofDrawCircle(pos, size+1);
+        shader.end();
     }
 }
 
@@ -197,7 +206,7 @@ void ofApp::draw(){
         fbo.draw( 0, 0 );
         history = 0.8;
         for (int a = 0 ; a < param.bands; a++) {
-        bornRate = (param.fftSmooth[a]*22000);
+        bornRate = (param.fftSmooth[a]*1000);
         }
     }
 

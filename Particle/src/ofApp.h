@@ -16,6 +16,8 @@ public:
     float lifeTime;
     ofColor color;
     bool live;
+    
+    ofShader shader;
    
 
 };
