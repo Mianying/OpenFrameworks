@@ -107,6 +107,7 @@ void Particle::draw(){
         shader.setUniform1f("finallol5", 2);
         shader.setUniform2f("finallol3", ofGetMouseX(),ofGetMouseY()+ofGetMouseX()+3);
         float size = ofMap(fabs(time - lifespan/2), 0, lifespan/2, 3, 2 );
+        shader.setUniform1f("finallol6", size);
         ofDrawCircle(pos, size+1);
         shader.end();
     }
