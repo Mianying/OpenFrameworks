@@ -26,10 +26,10 @@ public:
 class Params {
 public:
     void setup();
-    ofPoint eCenter;    //Emitter center
-    float eRad;         //Emitter radius
-    float velRad;       //Initial velocity limit
-    float lifeTime;     //Lifetime in seconds
+    ofPoint eCenter;
+    float eRad;
+    float velRad;
+    float lifeTime;
     float rotate;
     float force;
     float spinning;
@@ -54,9 +54,9 @@ public:
     vector<Particle> p;
     float bornRate;
     float bornCount;
-    ofFbo fbo;              //Offscreen buffer for trails
-    float history;          //Control parameter for trails
-    float time0;            //Time value for computing dt
+    ofFbo fbo;
+    float history;
+    float time0;            
     
     
    

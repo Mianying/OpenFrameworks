@@ -4,9 +4,9 @@ Params param; //Definition of global variable
 
 void Params::setup(){
     eCenter = ofPoint(ofGetWidth()/2,ofGetHeight()/2);
-    eRad = 5000;
+    eRad = 4000;
     velRad = 2;
-    lifeTime = 2;
+    lifeTime = 1.5;
     rotate = 0;
     force = -50;
     spinning = 800;
@@ -18,7 +18,7 @@ void Params::setup(){
     for(int i=0; i < 8912; i++){
         bands= 1;
         beat.setLoop(true);
-        beat.setVolume(1);
+        beat.setVolume(0.5);
     }
    
 }
@@ -44,15 +44,13 @@ void Particle::setup() {
     lifeTime = param.lifeTime;
     live = true;
     
-    #ifdef TARGET_OPENGLES
-    shader.load("shadersGL2/shader");
-#else
     if(ofIsGLProgrammableRenderer()){
-        shader.load("shadersGL3/shader");
-    }else{
-        shader.load("shadersGL2/shader");
+        try {
+            shader.load("shaders/shader1");
+        }catch (std::exception e){
+            ofLog()<<e.what()<< endl;
+        }
     }
-#endif
 }
 
 
@@ -70,13 +68,13 @@ void Particle::update( float dt ){
         //Rotate vel
         vel.rotate( 0, 0, param.rotate * dt );
         ofPoint acc; //Acceleration
-        ofPoint delta = pos - param.eCenter + (param.fftSmooth[i]*9000);
+        ofPoint delta = pos - param.eCenter + (param.fftSmooth[i]*7000);
         float len = delta.length();
         for(int i=0; i<param.bands;i++){
         if ( ofInRange( len, 0, param.eRad) ) {
             delta.normalize();
             //Attraction/repulsion force
-            acc += delta * param.force + (param.fftSmooth[i]* 3050) ;
+            acc += delta * param.force + (param.fftSmooth[i]* 9050) ;
             //Spinning force
             acc.x += -delta.y * param.spinning + (param.fftSmooth[i]*2550);
             acc.y += delta.x * param.spinning - (param.fftSmooth[i]*8000);
@@ -100,15 +98,15 @@ void Particle::update( float dt ){
 
 void Particle::draw(){
     if ( live ) {
-        //size
-        float size = ofMap(fabs(time - lifeTime/2), 0, lifeTime/2, 3, 1 );
-        //color
-        //ofColor color = 255;
-        //float hue = ofMap( time, 0, lifeTime, 100, 155 );
-        //color.setHue( 0 );
-        //ofSetColor( color );
-        //ofSetColor(255);
+        
         shader.begin();
+        float lifespan = 2;
+        shader.setUniform1f("finallol", 1.0);
+        shader.setUniform1f("finallol2", 1.5);
+        shader.setUniform1f("finallol4", lifespan);
+        shader.setUniform1f("finallol5", 2);
+        shader.setUniform2f("finallol3", ofGetMouseX(),ofGetMouseY()+ofGetMouseX()+3);
+        float size = ofMap(fabs(time - lifespan/2), 0, lifespan/2, 3, 2 );
         ofDrawCircle(pos, size+1);
         shader.end();
     }
@@ -206,7 +204,7 @@ void ofApp::draw(){
         fbo.draw( 0, 0 );
         history = 0.8;
         for (int a = 0 ; a < param.bands; a++) {
-        bornRate = (param.fftSmooth[a]*1000);
+        bornRate = (param.fftSmooth[a]*3000);
         }
     }
 
